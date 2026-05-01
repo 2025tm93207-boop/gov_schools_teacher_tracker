@@ -52,21 +52,43 @@ const TeacherAttendance = () => {
     }
   };
 
-  if (!session) return <div className="p-4">No active session</div>;
+  if (!session) {
+    return (
+      <div className="mx-auto w-full max-w-xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h1 className="text-3xl font-semibold text-slate-900 mb-4">Teacher Attendance</h1>
+        <p className="text-slate-700">There is no active attendance session for today. Please check with your headmaster.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-2xl font-bold mb-4">Teacher Attendance</h1>
-      <div className="mb-4">
-        <p>Ensure at least 5 students are visible in the frame.</p>
-        <WebcamCapture onCapture={setSelfie} />
+    <div className="mx-auto w-full max-w-4xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mb-6">
+        <h1 className="text-3xl font-semibold text-slate-900">Teacher Attendance</h1>
+        <p className="mt-2 text-slate-600">Capture your classroom selfie, confirm location, and sign in or sign out.</p>
       </div>
-      <GeoLocationPrompt onLocation={(lat, lon) => { setLat(lat); setLon(lon); }} />
-      {!signedIn ? (
-        <button onClick={handleSignIn} className="w-full bg-blue-500 text-white p-2 rounded mt-4">Sign In</button>
-      ) : (
-        <button onClick={handleSignOut} className="w-full bg-red-500 text-white p-2 rounded mt-4">Sign Out</button>
-      )}
+      <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+        <div className="space-y-6 rounded-xl border border-slate-200 bg-slate-50 p-5">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Selfie Capture</h2>
+            <p className="text-slate-600 mb-4">Ensure at least 5 students are visible in the frame before submitting.</p>
+            <WebcamCapture onCapture={setSelfie} />
+          </div>
+        </div>
+        <div className="space-y-6 rounded-xl border border-slate-200 bg-slate-50 p-5">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Location Verification</h2>
+            <GeoLocationPrompt onLocation={(lat, lon) => { setLat(lat); setLon(lon); }} />
+          </div>
+          <div className="space-y-3">
+            {!signedIn ? (
+              <button onClick={handleSignIn} className="w-full rounded-lg bg-saffron-600 px-4 py-3 text-white transition hover:bg-saffron-700">Sign In</button>
+            ) : (
+              <button onClick={handleSignOut} className="w-full rounded-lg bg-slate-900 px-4 py-3 text-white transition hover:bg-slate-800">Sign Out</button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

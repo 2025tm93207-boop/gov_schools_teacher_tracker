@@ -24,28 +24,37 @@ const GeoLocationPrompt = ({ onLocation }) => {
 
   if (manual) {
     return (
-      <div className="p-4 bg-yellow-100 rounded">
-        <p>GPS not available. Enter location manually:</p>
-        <input
-          type="number"
-          placeholder="Latitude"
-          value={location.lat}
-          onChange={(e) => setLocation({ ...location, lat: e.target.value })}
-          className="block w-full mt-2 p-2 border"
-        />
-        <input
-          type="number"
-          placeholder="Longitude"
-          value={location.lon}
-          onChange={(e) => setLocation({ ...location, lon: e.target.value })}
-          className="block w-full mt-2 p-2 border"
-        />
-        <button onClick={handleManual} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p className="text-slate-800 font-medium">GPS not available. Enter location manually:</p>
+        <div className="mt-4 space-y-3">
+          <div>
+            <label className="block text-sm text-slate-700 mb-1">Latitude</label>
+            <input
+              type="number"
+              placeholder="Latitude"
+              value={location.lat}
+              onChange={(e) => setLocation({ ...location, lat: e.target.value })}
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-slate-700 mb-1">Longitude</label>
+            <input
+              type="number"
+              placeholder="Longitude"
+              value={location.lon}
+              onChange={(e) => setLocation({ ...location, lon: e.target.value })}
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900"
+            />
+          </div>
+          <button onClick={handleManual} className="w-full rounded-lg bg-saffron-600 px-4 py-3 text-slate-900 font-semibold transition hover:bg-saffron-700">Submit Location</button>
+          <p className="text-sm text-slate-600">For laptop demo, you may use school coordinates in the input fields.</p>
+        </div>
       </div>
     );
   }
 
-  return <p>Getting location...</p>;
+  return <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-700">Getting location from the browser...</p>;
 };
 
 export default GeoLocationPrompt;

@@ -21,17 +21,17 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-blue-600 text-white p-4">
-      <div className="container mx-auto flex justify-between">
-        <Link to="/public" className="text-xl font-bold">Attendance System</Link>
-        <div>
+    <nav className="bg-slate-900 text-white">
+      <div className="container mx-auto flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <Link to="/public" className="text-lg font-semibold uppercase tracking-wide">Gov School Attendance</Link>
+        <div className="flex flex-wrap items-center gap-3">
           {user ? (
             <>
-              <span>Welcome, {user.username}</span>
-              <button onClick={logout} className="ml-4 bg-red-500 px-4 py-2 rounded">Logout</button>
+              <span className="text-slate-200">Welcome, {user.username}</span>
+              <button onClick={logout} className="rounded-lg bg-saffron-600 px-4 py-2 text-slate-900 font-semibold transition hover:bg-saffron-700">Logout</button>
             </>
           ) : (
-            <Link to="/login" className="bg-green-500 px-4 py-2 rounded">Login</Link>
+            <Link to="/login" className="rounded-lg bg-saffron-600 px-4 py-2 text-slate-900 font-semibold transition hover:bg-saffron-700">Login</Link>
           )}
         </div>
       </div>

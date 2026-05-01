@@ -24,26 +24,32 @@ const Login = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Username"
-          value={credentials.username}
-          onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-          className="w-full p-2 border"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={credentials.password}
-          onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-          className="w-full p-2 border"
-          required
-        />
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">Login</button>
+    <div className="mx-auto w-full max-w-md rounded-xl border border-slate-300 bg-white p-8 shadow-sm">
+      <h1 className="text-3xl font-semibold text-slate-900 mb-6">Headmaster & Teacher Login</h1>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Username</label>
+          <input
+            type="text"
+            placeholder="Enter username"
+            value={credentials.username}
+            onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-saffron-600 focus:outline-none focus:ring-2 focus:ring-saffron-100"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={credentials.password}
+            onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-saffron-600 focus:outline-none focus:ring-2 focus:ring-saffron-100"
+            required
+          />
+        </div>
+        <button type="submit" className="w-full rounded-lg bg-saffron-600 px-4 py-3 font-semibold text-white transition hover:bg-saffron-700">Login</button>
       </form>
     </div>
   );

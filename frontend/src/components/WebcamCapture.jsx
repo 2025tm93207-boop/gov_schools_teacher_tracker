@@ -12,15 +12,17 @@ const WebcamCapture = ({ onCapture }) => {
   };
 
   return (
-    <div className="text-center">
-      <Webcam
-        audio={false}
-        ref={webcamRef}
-        screenshotFormat="image/jpeg"
-        className="w-full max-w-md mx-auto"
-      />
-      <button onClick={capture} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Capture</button>
-      {image && <img src={image} alt="Captured" className="mt-4 w-full max-w-md mx-auto" />}
+    <div className="space-y-4">
+      <div className="overflow-hidden rounded-xl border border-slate-300 bg-black">
+        <Webcam
+          audio={false}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          className="w-full"
+        />
+      </div>
+      <button onClick={capture} className="w-full rounded-lg bg-saffron-600 px-4 py-3 text-slate-900 font-semibold transition hover:bg-saffron-700">Capture Photo</button>
+      {image && <img src={image} alt="Captured" className="rounded-xl border border-slate-200 w-full" />}
     </div>
   );
 };
