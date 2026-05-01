@@ -52,4 +52,15 @@ All generated documentation must be clean, well-formatted, and placed inside a /
 Python version fix
 Pillow version correction to >=10.4
 Added gitignore
+
+___
+
+Models used -
+
+DeepSeek - Prompt generation, Idea brainstorming
+GitHub CoPilot - Initial Code Generation
+Gemini 3.1 - Image Generation
+Claude Sonnet 4.6 - Bug fixing
+
+
  

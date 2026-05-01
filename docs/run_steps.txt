@@ -1,0 +1,27 @@
+Backend -
+
+cd backend
+py -3.11 -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py makemigrations auth_service school_service attendance_service reporting_service dashboard_service
+python manage.py migrate
+python manage.py seed_data
+python manage.py runserver
+
+------------------
+
+Frontend - 
+
+cd frontend
+npm install
+npm run dev
+
+## Seeded Login Credentials
+- **Headmaster (ZPPS Nandre)**: hm_nandre / Test@123
+- **Headmaster (ZPPS Kusumbe)**: hm_kusumbe / Test@123
+- **Headmaster (ZPPS Fagne)**: hm_fagne / Test@123
+- **Teachers (ZPPS Nandre)**: teacher1_nandre to teacher10_nandre / Test@123
+- **Teachers (ZPPS Kusumbe)**: teacher1_kusumbe to teacher10_kusumbe / Test@123
+- **Teachers (ZPPS Fagne)**: teacher1_fagne to teacher10_fagne / Test@123
+- **BEO**: beo_dhule / Test@123
