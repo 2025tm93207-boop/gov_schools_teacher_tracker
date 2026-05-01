@@ -7,6 +7,9 @@ class AttendanceSession(models.Model):
     end_time = models.TimeField()
     is_active = models.BooleanField(default=True)
 
+    class Meta:
+        unique_together = ['school', 'date']
+
     def __str__(self):
         return f"{self.school.name} - {self.date}"
 
@@ -27,3 +30,26 @@ class AttendanceRecord(models.Model):
 
     def __str__(self):
         return f"{self.teacher.user.username} - {self.session.date}"
+
+class IssueReport(models.Model):
+    CATEGORY_CHOICES = [
+        ('infrastructure', 'Infrastructure'),
+        ('safety', 'Safety'),
+        ('resource', 'Resource Shortage'),
+        ('other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('acknowledged', 'Acknowledged'),
+        ('resolved', 'Resolved'),
+    ]
+    teacher = models.ForeignKey('school_service.Teacher', on_delete=models.CASCADE)
+    school = models.ForeignKey('school_service.School', on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.teacher.user.username} - {self.category} - {self.date}"

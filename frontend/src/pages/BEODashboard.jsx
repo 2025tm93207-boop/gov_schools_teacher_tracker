@@ -1,84 +1,136 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+
+const MONTHS = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const BEODashboard = () => {
   const [schools, setSchools] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [schoolStats, setSchoolStats] = useState({});
+  const stored = JSON.parse(localStorage.getItem('user_data') || '{}');
+  const now = new Date();
+  const curMonth = now.getMonth()+1, curYear = now.getFullYear();
 
-  useEffect(() => {
-    fetchSchools();
-    fetchAlerts();
-  }, []);
+  useEffect(() => { fetchSchools(); fetchAlerts(); }, []);
 
   const fetchSchools = async () => {
     try {
       const res = await axios.get('/api/schools/');
       setSchools(res.data);
-    } catch (err) {
-      toast.error('Error fetching schools');
-    }
+      // Fetch stats for each school
+      for (const s of res.data) {
+        try {
+          const sr = await axios.get(`/api/attendance/school/${s.id}/monthly-summary/?month=${curMonth}&year=${curYear}`);
+          setSchoolStats(prev => ({...prev, [s.id]: sr.data}));
+        } catch {}
+      }
+    } catch { toast.error('Error fetching schools'); }
   };
 
   const fetchAlerts = async () => {
-    try {
-      const res = await axios.get('/api/reporting/salary-alerts/');
-      setAlerts(res.data);
-    } catch (err) {
-      toast.error('Error fetching alerts');
-    }
+    try { const res = await axios.get('/api/reporting/salary-alerts/'); setAlerts(res.data); } catch {}
   };
 
   const calculateMonthly = async () => {
     try {
-      await axios.post('/api/reporting/calculate-monthly/', { month: new Date().getMonth() + 1, year: new Date().getFullYear() });
-      toast.success('Calculated');
-      fetchAlerts();
-    } catch (err) {
-      toast.error('Error calculating');
-    }
+      await axios.post('/api/reporting/calculate-monthly/',{month:curMonth,year:curYear});
+      toast.success('Monthly calculation completed'); fetchAlerts();
+    } catch { toast.error('Error calculating'); }
   };
 
+  const pctClr = (p) => p>=80?'text-gov-green':p>=60?'text-amber-600':'text-gov-red';
+  const barClr = (p) => p>=80?'progress-good':p>=60?'progress-medium':'progress-poor';
+
   return (
-    <div className="mx-auto w-full max-w-5xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-slate-900">BEO Dashboard</h1>
-          <p className="mt-2 text-slate-600">Review school attendance performance and salary hold recommendations.</p>
+    <div className="space-y-6 animate-fade-in">
+      {/* BEO Header */}
+      <div className="gov-card p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="avatar-placeholder avatar-lg">RP</div>
+            <div>
+              <h1 className="text-xl font-bold text-gov-navy">Block Education Office, Shirpur</h1>
+              <p className="text-sm text-slate-500">{stored.full_name || 'Block Education Officer'} — Dhule District, Maharashtra</p>
+              <p className="text-xs text-slate-400">📞 {stored.phone || '02562-233100'}</p>
+            </div>
+          </div>
+          <button onClick={calculateMonthly} className="btn-saffron">📊 Calculate {MONTHS[curMonth]} Attendance</button>
         </div>
-        <button onClick={calculateMonthly} className="rounded-lg bg-saffron-600 px-5 py-3 text-white transition hover:bg-saffron-700">Calculate Monthly Attendance</button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <h2 className="text-xl font-semibold text-slate-900 mb-4">Schools</h2>
-          <div className="space-y-3">
-            {schools.length === 0 ? (
-              <div className="rounded-lg border border-slate-200 bg-white p-4 text-slate-700">No schools available.</div>
-            ) : (
-              schools.map((s) => (
-                <div key={s.id} className="rounded-lg border border-slate-200 bg-white p-4 text-slate-900">{s.name}</div>
-              ))
-            )}
-          </div>
-        </section>
+      {/* Overview Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="stat-card"><div className="stat-label">Schools</div><div className="stat-value">{schools.length}</div></div>
+        <div className="stat-card"><div className="stat-label">Total Teachers</div><div className="stat-value">{schools.reduce((a,s)=>{const st=schoolStats[s.id]; return a+(st?.total_teachers||0);},0)}</div></div>
+        <div className="stat-card"><div className="stat-label">Avg Attendance</div><div className="stat-value">{schools.length>0?Math.round(Object.values(schoolStats).reduce((a,s)=>a+(s?.average_attendance||0),0)/Math.max(Object.keys(schoolStats).length,1))+'%':'—'}</div></div>
+        <div className="stat-card"><div className="stat-label">Salary Alerts</div><div className="stat-value text-gov-red">{alerts.length}</div></div>
+      </div>
 
-        <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <h2 className="text-xl font-semibold text-slate-900 mb-4">Salary Block Alerts</h2>
-          <div className="space-y-3">
-            {alerts.length === 0 ? (
-              <div className="rounded-lg border border-slate-200 bg-white p-4 text-slate-700">No alerts at this time.</div>
-            ) : (
-              alerts.map((a) => (
-                <div key={a.teacher} className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-slate-900">
-                  <div className="font-medium">{a.teacher}</div>
-                  <div className="text-sm text-slate-600">{a.school}</div>
+      {/* Schools Grid */}
+      <div>
+        <h2 className="section-title">Schools Under Jurisdiction</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {schools.map(s => {
+            const stats = schoolStats[s.id];
+            const avgPct = stats?.average_attendance || 0;
+            return (
+              <Link to={`/beo/school/${s.id}`} key={s.id} className="gov-card p-5 hover:border-gov-navy/30 group">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="logo-placeholder w-12 h-12 text-xl shrink-0">🏫</div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-gov-navy group-hover:text-gov-saffron transition-colors">{s.name}</h3>
+                    <p className="text-xs text-slate-500 truncate">{s.address || 'Address not available'}</p>
+                    {s.map_link && <span className="map-link text-[10px]">📍 Map</span>}
+                  </div>
                 </div>
-              ))
-            )}
-          </div>
-        </section>
+
+                {/* Headmaster */}
+                <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-slate-50">
+                  <div className="avatar-placeholder w-8 h-8 text-xs">{s.headmaster_name?.[0]||'H'}</div>
+                  <div>
+                    <div className="text-xs font-semibold">{s.headmaster_name||'—'}</div>
+                    <div className="text-[10px] text-slate-400">Headmaster • {s.headmaster_phone||'—'}</div>
+                  </div>
+                </div>
+
+                {/* Monthly Stats */}
+                {stats && <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-slate-500">{MONTHS[curMonth]} Attendance</span>
+                    <span className={`text-sm font-bold ${pctClr(avgPct)}`}>{avgPct}%</span>
+                  </div>
+                  <div className="progress-bar"><div className={`progress-fill ${barClr(avgPct)}`} style={{width:`${avgPct}%`}}/></div>
+                  <div className="flex justify-between mt-2 text-[10px] text-slate-400">
+                    <span>{stats.total_teachers} teachers</span>
+                    <span>{stats.working_days} working days</span>
+                  </div>
+                </div>}
+
+                <div className="mt-3 text-xs text-gov-navy font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                  View Details →
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Salary Alerts */}
+      {alerts.length > 0 && <div>
+        <h2 className="section-title">⚠️ Salary Block Alerts</h2>
+        <div className="gov-card overflow-hidden">
+          <table className="gov-table"><thead><tr><th>Teacher</th><th>School</th><th>Class</th><th>Status</th></tr></thead>
+            <tbody>{alerts.map(a=><tr key={a.teacher_id}>
+              <td><div className="flex items-center gap-2"><div className="avatar-placeholder avatar-sm">{a.teacher?.[0]}</div><span className="font-medium text-sm">{a.teacher}</span></div></td>
+              <td className="text-sm">{a.school}</td>
+              <td className="text-sm">Std {a.standard}{a.division}</td>
+              <td>{a.salary_held?<span className="badge badge-held">🔒 Held</span>:<span className="badge badge-absent">⚠ Recommended</span>}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </div>}
     </div>
   );
 };

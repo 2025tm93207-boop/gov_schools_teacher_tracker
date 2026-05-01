@@ -4,30 +4,159 @@
 
 :root {
   color-scheme: light;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   min-height: 100vh;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #f1f5f9;
+  color: #1a1a2e;
 }
 
-button, input, select, textarea {
-  font: inherit;
-}
+button, input, select, textarea { font: inherit; }
 
 ::selection {
-  background-color: #fcd34d;
-  color: #0f172a;
+  background-color: #FF6F00;
+  color: #fff;
+}
+
+/* ── Tricolor Bar ───────────────────────────────────── */
+.tricolor-bar {
+  height: 5px;
+  background: linear-gradient(to right, #FF6F00 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%);
+}
+
+/* ── Government Header ──────────────────────────────── */
+.gov-header {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #1a237e 100%);
+  color: #fff;
+}
+
+/* ── Cards ──────────────────────────────────────────── */
+.gov-card {
+  @apply bg-white rounded-xl border border-slate-200 shadow-card transition-all duration-300;
+}
+.gov-card:hover {
+  @apply shadow-card-hover border-slate-300;
+}
+
+/* ── Status Badges ──────────────────────────────────── */
+.badge {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+}
+.badge-present { @apply bg-emerald-100 text-emerald-800; }
+.badge-partial { @apply bg-amber-100 text-amber-800; }
+.badge-absent { @apply bg-red-100 text-red-800; }
+.badge-held { @apply bg-red-100 text-red-800 border border-red-300; }
+.badge-role {
+  @apply bg-gov-saffron/20 text-gov-saffron-dark font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded;
+}
+
+/* ── Stat Cards ─────────────────────────────────────── */
+.stat-card {
+  @apply bg-white rounded-xl p-5 border border-slate-200 shadow-card text-center;
+}
+.stat-value {
+  @apply text-3xl font-bold text-gov-navy mt-1;
+}
+.stat-label {
+  @apply text-xs font-medium text-slate-500 uppercase tracking-wider;
+}
+
+/* ── Tables ─────────────────────────────────────────── */
+.gov-table {
+  @apply w-full text-sm;
+}
+.gov-table thead {
+  @apply bg-gov-navy text-white;
+}
+.gov-table th {
+  @apply px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider;
+}
+.gov-table td {
+  @apply px-4 py-3 border-b border-slate-100;
+}
+.gov-table tbody tr:hover {
+  @apply bg-slate-50;
+}
+
+/* ── Placeholder Avatar ─────────────────────────────── */
+.avatar-placeholder {
+  @apply flex items-center justify-center rounded-full bg-gov-navy/10 text-gov-navy font-bold;
+}
+.avatar-sm { @apply w-8 h-8 text-xs; }
+.avatar-md { @apply w-12 h-12 text-sm; }
+.avatar-lg { @apply w-16 h-16 text-lg; }
+
+/* ── Logo Placeholder ───────────────────────────────── */
+.logo-placeholder {
+  @apply flex items-center justify-center rounded-lg bg-gov-navy/10 text-gov-navy font-bold border-2 border-gov-navy/20;
+}
+
+/* ── Buttons ────────────────────────────────────────── */
+.btn-primary {
+  @apply bg-gov-navy text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:bg-gov-navy-light hover:shadow-gov active:scale-[0.98];
+}
+.btn-saffron {
+  @apply bg-gov-saffron text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:bg-gov-saffron-light hover:shadow-gov active:scale-[0.98];
+}
+.btn-danger {
+  @apply bg-gov-red text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 hover:bg-gov-red-light active:scale-[0.98];
+}
+.btn-success {
+  @apply bg-gov-green text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 hover:bg-gov-green-light active:scale-[0.98];
+}
+.btn-outline {
+  @apply border-2 border-gov-navy text-gov-navy px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 hover:bg-gov-navy hover:text-white active:scale-[0.98];
+}
+
+/* ── Section Headers ────────────────────────────────── */
+.section-title {
+  @apply text-lg font-bold text-gov-navy flex items-center gap-2 mb-4;
+}
+.section-title::before {
+  content: '';
+  @apply w-1 h-6 bg-gov-saffron rounded-full inline-block;
+}
+
+/* ── Award / Red-flag Cards ─────────────────────────── */
+.award-card {
+  @apply bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-xl p-5;
+}
+.redflag-card {
+  @apply bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-300 rounded-xl p-5;
+}
+
+/* ── Progress Bar ───────────────────────────────────── */
+.progress-bar {
+  @apply h-2.5 bg-slate-200 rounded-full overflow-hidden;
+}
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-500;
+}
+.progress-good { @apply bg-gov-green; }
+.progress-medium { @apply bg-amber-500; }
+.progress-poor { @apply bg-gov-red; }
+
+/* ── Map Link ───────────────────────────────────────── */
+.map-link {
+  @apply inline-flex items-center gap-1 text-xs text-gov-navy hover:text-gov-saffron transition-colors underline decoration-dotted;
+}
+
+/* ── Animations ─────────────────────────────────────── */
+.animate-in {
+  animation: fadeIn 0.4s ease-out, slideUp 0.4s ease-out;
+}
+
+/* ── Footer ─────────────────────────────────────────── */
+.gov-footer {
+  @apply bg-gov-navy-dark text-white/70 text-xs py-4 text-center mt-8;
 }
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
   }
 }

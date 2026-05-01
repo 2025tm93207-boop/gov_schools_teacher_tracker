@@ -9,6 +9,9 @@ class User(AbstractUser):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='teacher')
     school = models.ForeignKey('school_service.School', on_delete=models.SET_NULL, null=True, blank=True)
+    full_name = models.CharField(max_length=150, blank=True, default='')
+    phone = models.CharField(max_length=20, blank=True, default='')
+    photo = models.CharField(max_length=255, blank=True, default='')
 
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return f"{self.full_name or self.username} ({self.role})"

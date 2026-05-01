@@ -1,14 +1,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import AttendanceSession, AttendanceRecord
+from .models import AttendanceSession, AttendanceRecord, IssueReport
 from school_service.models import Teacher
-from .serializers import AttendanceSessionSerializer, AttendanceRecordSerializer
+from .serializers import AttendanceSessionSerializer, AttendanceRecordSerializer, IssueReportSerializer
 from django.utils import timezone
 from django.core.files.base import ContentFile
 import base64
 from math import radians, sin, cos, sqrt, atan2
 from drf_spectacular.utils import extend_schema
+from calendar import monthrange
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371
@@ -27,12 +28,19 @@ class CreateSessionView(APIView):
         date = request.data.get('date')
         start_time = request.data.get('start_time')
         end_time = request.data.get('end_time')
-        session = AttendanceSession.objects.create(
+        session, created = AttendanceSession.objects.get_or_create(
             school=school,
             date=date,
-            start_time=start_time,
-            end_time=end_time
+            defaults={
+                'start_time': start_time,
+                'end_time': end_time
+            }
         )
+        if not created:
+            session.start_time = start_time
+            session.end_time = end_time
+            session.is_active = True
+            session.save()
         return Response(AttendanceSessionSerializer(session).data)
 
 @extend_schema(tags=['attendance'])
@@ -132,22 +140,235 @@ class SchoolTodayView(APIView):
             records = AttendanceRecord.objects.filter(session=session)
             for teacher in teachers:
                 record = records.filter(teacher=teacher).first()
-                status = 'Absent'
+                att_status = 'Absent'
                 if record:
                     signed_in += 1
                     if record.sign_in_time and record.sign_out_time:
-                        status = 'Present'
+                        att_status = 'Present'
                         present += 1
                     elif record.sign_in_time:
-                        status = 'Partial'
+                        att_status = 'Partial'
                 data.append({
                     'teacher': teacher.user.username,
-                    'status': status
+                    'teacher_name': teacher.full_name,
+                    'teacher_photo': teacher.photo,
+                    'standard': teacher.standard,
+                    'division': teacher.division,
+                    'status': att_status,
+                    'sign_in_time': record.sign_in_time.strftime('%H:%M') if record and record.sign_in_time else None,
+                    'sign_out_time': record.sign_out_time.strftime('%H:%M') if record and record.sign_out_time else None,
+                })
+        else:
+            for teacher in teachers:
+                data.append({
+                    'teacher': teacher.user.username,
+                    'teacher_name': teacher.full_name,
+                    'teacher_photo': teacher.photo,
+                    'standard': teacher.standard,
+                    'division': teacher.division,
+                    'status': 'No Session',
+                    'sign_in_time': None,
+                    'sign_out_time': None,
                 })
         return Response({
             'total_teachers': total_teachers,
             'signed_in': signed_in,
             'present': present,
             'not_signed_in': total_teachers - signed_in,
+            'session_active': session.is_active if session else False,
             'teachers': data
+        })
+
+@extend_schema(tags=['attendance'])
+class TeacherMonthlyView(APIView):
+    """Get a teacher's monthly attendance detail"""
+    def get(self, request, teacher_id):
+        month = int(request.query_params.get('month', timezone.now().month))
+        year = int(request.query_params.get('year', timezone.now().year))
+        try:
+            teacher = Teacher.objects.get(id=teacher_id)
+        except Teacher.DoesNotExist:
+            return Response({'error': 'Teacher not found'}, status=404)
+
+        sessions = AttendanceSession.objects.filter(
+            school=teacher.user.school,
+            date__year=year,
+            date__month=month
+        ).order_by('date')
+
+        working_days = sessions.count()
+        present_days = 0
+        partial_days = 0
+        absent_days = 0
+        records_data = []
+
+        for session in sessions:
+            record = AttendanceRecord.objects.filter(teacher=teacher, session=session).first()
+            if record and record.sign_in_time and record.sign_out_time:
+                att_status = 'Present'
+                present_days += 1
+            elif record and record.sign_in_time:
+                att_status = 'Partial'
+                partial_days += 1
+            else:
+                att_status = 'Absent'
+                absent_days += 1
+            records_data.append({
+                'date': session.date.strftime('%Y-%m-%d'),
+                'day': session.date.strftime('%A'),
+                'status': att_status,
+                'sign_in_time': record.sign_in_time.strftime('%H:%M') if record and record.sign_in_time else None,
+                'sign_out_time': record.sign_out_time.strftime('%H:%M') if record and record.sign_out_time else None,
+            })
+
+        attendance_pct = round((present_days + partial_days * 0.5) / working_days * 100, 1) if working_days > 0 else 0
+
+        return Response({
+            'teacher_id': teacher.id,
+            'teacher_name': teacher.full_name,
+            'teacher_photo': teacher.photo,
+            'standard': teacher.standard,
+            'division': teacher.division,
+            'month': month,
+            'year': year,
+            'working_days': working_days,
+            'present_days': present_days,
+            'partial_days': partial_days,
+            'absent_days': absent_days,
+            'attendance_percentage': attendance_pct,
+            'salary_block_recommended': teacher.salary_block_recommended,
+            'salary_held': teacher.salary_held,
+            'records': records_data,
+        })
+
+@extend_schema(tags=['attendance'])
+class SchoolMonthlySummaryView(APIView):
+    """School monthly summary with teacher-wise stats"""
+    def get(self, request, school_id):
+        month = int(request.query_params.get('month', timezone.now().month))
+        year = int(request.query_params.get('year', timezone.now().year))
+
+        sessions = AttendanceSession.objects.filter(
+            school_id=school_id,
+            date__year=year,
+            date__month=month
+        )
+        working_days = sessions.count()
+        teachers = Teacher.objects.filter(user__school_id=school_id)
+        teacher_stats = []
+
+        for teacher in teachers:
+            present = 0
+            partial = 0
+            for session in sessions:
+                record = AttendanceRecord.objects.filter(teacher=teacher, session=session).first()
+                if record and record.sign_in_time and record.sign_out_time:
+                    present += 1
+                elif record and record.sign_in_time:
+                    partial += 1
+            pct = round((present + partial * 0.5) / working_days * 100, 1) if working_days > 0 else 0
+            teacher_stats.append({
+                'teacher_id': teacher.id,
+                'teacher_name': teacher.full_name,
+                'teacher_photo': teacher.photo,
+                'username': teacher.user.username,
+                'standard': teacher.standard,
+                'division': teacher.division,
+                'present_days': present,
+                'partial_days': partial,
+                'absent_days': working_days - present - partial,
+                'working_days': working_days,
+                'attendance_percentage': pct,
+                'salary_block_recommended': teacher.salary_block_recommended,
+                'salary_held': teacher.salary_held,
+            })
+
+        avg_pct = round(sum(t['attendance_percentage'] for t in teacher_stats) / len(teacher_stats), 1) if teacher_stats else 0
+
+        return Response({
+            'school_id': school_id,
+            'month': month,
+            'year': year,
+            'working_days': working_days,
+            'total_teachers': len(teacher_stats),
+            'average_attendance': avg_pct,
+            'teachers': teacher_stats,
+        })
+
+@extend_schema(tags=['attendance'])
+class CreateIssueView(APIView):
+    """Teacher reports an issue"""
+    def post(self, request):
+        if request.user.role != 'teacher':
+            return Response({'error': 'Only teachers can report issues'}, status=403)
+        teacher = Teacher.objects.get(user=request.user)
+        issue = IssueReport.objects.create(
+            teacher=teacher,
+            school=request.user.school,
+            category=request.data.get('category', 'other'),
+            description=request.data.get('description', ''),
+        )
+        return Response(IssueReportSerializer(issue).data, status=201)
+
+    def get(self, request):
+        school_id = request.query_params.get('school_id')
+        if school_id:
+            issues = IssueReport.objects.filter(school_id=school_id).order_by('-created_at')
+        elif request.user.role == 'teacher':
+            teacher = Teacher.objects.get(user=request.user)
+            issues = IssueReport.objects.filter(teacher=teacher).order_by('-created_at')
+        else:
+            issues = IssueReport.objects.none()
+        return Response(IssueReportSerializer(issues, many=True).data)
+
+@extend_schema(tags=['attendance'])
+class MyMonthlyView(APIView):
+    """Current teacher's own monthly attendance"""
+    def get(self, request):
+        if request.user.role != 'teacher':
+            return Response({'error': 'Unauthorized'}, status=403)
+        teacher = Teacher.objects.get(user=request.user)
+        month = int(request.query_params.get('month', timezone.now().month))
+        year = int(request.query_params.get('year', timezone.now().year))
+
+        sessions = AttendanceSession.objects.filter(
+            school=teacher.user.school,
+            date__year=year,
+            date__month=month
+        ).order_by('date')
+
+        working_days = sessions.count()
+        present_days = 0
+        partial_days = 0
+        records_data = []
+
+        for session in sessions:
+            record = AttendanceRecord.objects.filter(teacher=teacher, session=session).first()
+            if record and record.sign_in_time and record.sign_out_time:
+                att_status = 'Present'
+                present_days += 1
+            elif record and record.sign_in_time:
+                att_status = 'Partial'
+                partial_days += 1
+            else:
+                att_status = 'Absent'
+            records_data.append({
+                'date': session.date.strftime('%Y-%m-%d'),
+                'day': session.date.strftime('%A'),
+                'status': att_status,
+                'sign_in_time': record.sign_in_time.strftime('%H:%M') if record and record.sign_in_time else None,
+                'sign_out_time': record.sign_out_time.strftime('%H:%M') if record and record.sign_out_time else None,
+            })
+
+        pct = round((present_days + partial_days * 0.5) / working_days * 100, 1) if working_days > 0 else 0
+
+        return Response({
+            'month': month,
+            'year': year,
+            'working_days': working_days,
+            'present_days': present_days,
+            'partial_days': partial_days,
+            'absent_days': working_days - present_days - partial_days,
+            'attendance_percentage': pct,
+            'records': records_data,
         })

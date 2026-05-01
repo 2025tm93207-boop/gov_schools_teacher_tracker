@@ -1,10 +1,11 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -12,30 +13,100 @@ const Navbar = () => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       axios.get('/api/auth/me/').then(res => setUser(res.data)).catch(() => setUser(null));
     }
-  }, []);
+  }, [location.pathname]);
 
   const logout = () => {
-    localStorage.removeItem('access');
+    localStorage.clear();
+    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
     navigate('/login');
   };
 
+  const stored = JSON.parse(localStorage.getItem('user_data') || '{}');
+  const school = stored.school || user?.school;
+  const roleName = user?.role === 'headmaster' ? 'Headmaster' : user?.role === 'teacher' ? 'Teacher' : user?.role === 'beo' ? 'Block Education Officer' : '';
+  const displayName = user?.full_name || user?.username || '';
+
+  const getInitials = (name) => {
+    if (!name) return '?';
+    return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  };
+
   return (
-    <nav className="bg-slate-900 text-white">
-      <div className="container mx-auto flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <Link to="/public" className="text-lg font-semibold uppercase tracking-wide">Gov School Attendance</Link>
-        <div className="flex flex-wrap items-center gap-3">
-          {user ? (
-            <>
-              <span className="text-slate-200">Welcome, {user.username}</span>
-              <button onClick={logout} className="rounded-lg bg-saffron-600 px-4 py-2 text-slate-900 font-semibold transition hover:bg-saffron-700">Logout</button>
-            </>
-          ) : (
-            <Link to="/login" className="rounded-lg bg-saffron-600 px-4 py-2 text-slate-900 font-semibold transition hover:bg-saffron-700">Login</Link>
+    <header>
+      {/* Tricolor Bar */}
+      <div className="tricolor-bar" />
+
+      {/* Main Government Header */}
+      <div className="gov-header">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Emblem + Title */}
+            <Link to={user ? `/${user.role === 'beo' ? 'beo' : user.role}` : '/public'} className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+              <div className="logo-placeholder w-12 h-12 !bg-white/20 !border-white/30 !text-white text-lg shrink-0">
+                ॐ
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base font-bold leading-tight truncate">
+                  शिक्षक उपस्थिती पारदर्शकता पोर्टल
+                </h1>
+                <p className="text-[10px] sm:text-xs text-white/70 leading-tight">
+                  Teacher Attendance Transparency Portal — ZP Schools, Dhule, Maharashtra
+                </p>
+              </div>
+            </Link>
+
+            {/* Right: User info + actions */}
+            <div className="flex items-center gap-3 shrink-0">
+              {user ? (
+                <>
+                  <div className="hidden sm:block text-right">
+                    <div className="text-sm font-medium">{displayName}</div>
+                    <div className="badge-role">{roleName}</div>
+                  </div>
+                  <div className="avatar-placeholder avatar-sm !bg-white/20 !text-white">
+                    {getInitials(displayName)}
+                  </div>
+                  <button onClick={logout} className="btn-saffron !py-1.5 !px-3 !text-xs">
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link to="/public" className="text-white/80 hover:text-white text-xs font-medium transition-colors">
+                    Public Dashboard
+                  </Link>
+                  <Link to="/login" className="btn-saffron !py-1.5 !px-3 !text-xs">
+                    Login
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* School context bar for logged-in HM/Teacher */}
+          {user && school && (
+            <div className="mt-2 pt-2 border-t border-white/15 flex items-center gap-3 text-xs text-white/80">
+              <div className="logo-placeholder w-7 h-7 !bg-white/15 !border-white/25 !text-white text-[10px] shrink-0">
+                🏫
+              </div>
+              <div className="min-w-0">
+                <span className="font-semibold text-white">{school.name}</span>
+                <span className="hidden sm:inline"> — {school.address}, {school.village}, {school.district}</span>
+              </div>
+              {school.map_link && (
+                <a href={school.map_link} target="_blank" rel="noreferrer" className="map-link !text-white/70 hover:!text-gov-saffron shrink-0">
+                  📍 Map
+                </a>
+              )}
+            </div>
           )}
         </div>
       </div>
-    </nav>
+
+      {/* Bottom tricolor */}
+      <div className="tricolor-bar" />
+    </header>
   );
 };
 
