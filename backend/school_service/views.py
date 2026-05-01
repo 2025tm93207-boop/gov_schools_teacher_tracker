@@ -3,7 +3,7 @@ from .models import School, Teacher
 from .serializers import SchoolSerializer, TeacherSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsHeadmasterOrBEO, IsHeadmaster
-from drf_spectacular.utils import extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 @extend_schema_view(
     list=extend_schema(tags=['schools']),

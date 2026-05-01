@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'attendance_service',
     'reporting_service',
     'dashboard_service',
+    'attendance_project',
 ]
 
 MIDDLEWARE = [
