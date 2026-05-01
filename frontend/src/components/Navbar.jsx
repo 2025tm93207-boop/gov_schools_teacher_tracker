@@ -34,6 +34,18 @@ const Navbar = () => {
 
   return (
     <header>
+      {/* Top utility bar */}
+      <div className="bg-slate-900 text-white/80 text-[10px] py-1 px-4 flex justify-between items-center max-w-7xl mx-auto w-full">
+        <div className="hidden sm:block">Government of Maharashtra</div>
+        <div className="flex items-center gap-3 ml-auto">
+          <button className="hover:text-white transition-colors">A- | A | A+</button>
+          <div className="w-px h-3 bg-white/30"></div>
+          <button className="flex items-center gap-1 hover:text-white transition-colors">
+            🌐 English / मराठी
+          </button>
+        </div>
+      </div>
+
       {/* Tricolor Bar */}
       <div className="tricolor-bar" />
 
@@ -48,10 +60,10 @@ const Navbar = () => {
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm sm:text-base font-bold leading-tight truncate">
-                  शिक्षक उपस्थिती पारदर्शकता पोर्टल
+                  Teacher Attendance Transparency Portal
                 </h1>
                 <p className="text-[10px] sm:text-xs text-white/70 leading-tight">
-                  Teacher Attendance Transparency Portal — ZP Schools, Dhule, Maharashtra
+                  Zilla Parishad Education Department, Dhule District, Maharashtra
                 </p>
               </div>
             </Link>
