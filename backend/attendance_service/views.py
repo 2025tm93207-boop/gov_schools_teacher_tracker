@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.core.files.base import ContentFile
 import base64
 from math import radians, sin, cos, sqrt, atan2
+from drf_spectacular.utils import extend_schema
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371
@@ -17,6 +18,7 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * atan2(sqrt(a), sqrt(1-a))
     return R * c * 1000
 
+@extend_schema(tags=['attendance'])
 class CreateSessionView(APIView):
     def post(self, request):
         if request.user.role != 'headmaster':
@@ -33,6 +35,7 @@ class CreateSessionView(APIView):
         )
         return Response(AttendanceSessionSerializer(session).data)
 
+@extend_schema(tags=['attendance'])
 class TodaySessionView(APIView):
     def get(self, request):
         school_id = request.query_params.get('school_id')
@@ -47,6 +50,7 @@ class TodaySessionView(APIView):
             return Response(AttendanceSessionSerializer(session).data)
         return Response({'message': 'No active session'})
 
+@extend_schema(tags=['attendance'])
 class SignInView(APIView):
     def post(self, request):
         teacher = Teacher.objects.get(user=request.user)
@@ -75,6 +79,7 @@ class SignInView(APIView):
         record.save()
         return Response({'message': 'Signed in successfully'})
 
+@extend_schema(tags=['attendance'])
 class SignOutView(APIView):
     def post(self, request):
         teacher = Teacher.objects.get(user=request.user)
@@ -105,12 +110,14 @@ class SignOutView(APIView):
         record.save()
         return Response({'message': 'Signed out successfully'})
 
+@extend_schema(tags=['attendance'])
 class MyHistoryView(APIView):
     def get(self, request):
         teacher = Teacher.objects.get(user=request.user)
         records = AttendanceRecord.objects.filter(teacher=teacher).order_by('-session__date')
         return Response(AttendanceRecordSerializer(records, many=True).data)
 
+@extend_schema(tags=['attendance'])
 class SchoolTodayView(APIView):
     def get(self, request, school_id):
         if request.user.role not in ['headmaster', 'beo'] or (request.user.role == 'headmaster' and request.user.school.id != int(school_id)):

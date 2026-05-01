@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_spectacular',
     'auth_service',
     'school_service',
     'attendance_service',
@@ -103,9 +104,39 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Teacher Attendance & Proxy Verification System API',
+    'DESCRIPTION': 'API documentation for the Teacher Attendance system with microservices architecture.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SECURITY': [
+        {'Bearer': []},
+    ],
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+        }
+    },
+    'TAGS': [
+        {'name': 'auth', 'description': 'Authentication and user management'},
+        {'name': 'schools', 'description': 'School and teacher data'},
+        {'name': 'attendance', 'description': 'Attendance sessions and records'},
+        {'name': 'reporting', 'description': 'Monthly attendance calculations and alerts'},
+        {'name': 'dashboard', 'description': 'Public dashboard data'},
+    ],
 }

@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from school_service.models import School, Teacher
 from attendance_service.models import AttendanceSession, AttendanceRecord
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(tags=['dashboard'])
 class SchoolsView(APIView):
     permission_classes = []  # Public
 
@@ -12,6 +14,7 @@ class SchoolsView(APIView):
         data = [{'id': s.id, 'name': s.name} for s in schools]
         return Response(data)
 
+@extend_schema(tags=['dashboard'])
 class SchoolTodayView(APIView):
     permission_classes = []  # Public
 

@@ -4,7 +4,9 @@ from school_service.models import Teacher, School
 from attendance_service.models import AttendanceSession, AttendanceRecord
 from django.utils import timezone
 from calendar import monthrange
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(tags=['reporting'])
 class CalculateMonthlyView(APIView):
     def post(self, request):
         if request.user.role != 'beo':
@@ -35,6 +37,7 @@ class CalculateMonthlyView(APIView):
                 teacher.save()
         return Response({'message': 'Monthly calculation completed'})
 
+@extend_schema(tags=['reporting'])
 class SalaryAlertsView(APIView):
     def get(self, request):
         if request.user.role != 'beo':

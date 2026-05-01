@@ -47,6 +47,11 @@ gov_schools_teacher_tracker/
 │   ├── public/
 │   ├── package.json
 │   └── tailwind.config.js
+├── docs/
+│   ├── database_er_diagram.md
+│   ├── architecture_diagram.md
+│   ├── component_hierarchy.md
+│   └── ui_wireframes.md
 └── README.md
 ```
 
@@ -78,6 +83,15 @@ gov_schools_teacher_tracker/
 4. **Access the Application**:
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:8000
+   - API Documentation (Swagger UI): http://localhost:8000/api/docs/
+
+## Documentation
+
+- [API Documentation (Swagger UI)](http://localhost:8000/api/docs/) - Interactive API docs with JWT authentication support.
+- [Database ER Diagram](docs/database_er_diagram.md) - Entity-Relationship diagram of the database schema.
+- [System Architecture Diagram](docs/architecture_diagram.md) - High-level system architecture.
+- [React Component Hierarchy](docs/component_hierarchy.md) - Frontend component tree.
+- [UI Wireframes](docs/ui_wireframes.md) - Textual wireframes for all screens.
 
 ## Seeded Login Credentials
 - **Headmaster (ZPPS Nandre)**: hm_nandre / Test@123
@@ -94,25 +108,30 @@ gov_schools_teacher_tracker/
 - **Camera Access**: Use laptop webcam for selfie capture. Ensure browser permissions are granted.
 
 ## API Documentation
-### Authentication
+
+For detailed, interactive API documentation with request/response examples, visit the [Swagger UI](http://localhost:8000/api/docs/) after starting the backend server. The Swagger interface supports JWT authentication via the "Authorize" button - paste your access token from login to test protected endpoints.
+
+### Quick Endpoint Reference
+
+#### Authentication
 - `POST /api/auth/login/` - Login with username/password, returns JWT tokens
 - `GET /api/auth/me/` - Get current user details
 
-### Schools
+#### Schools
 - `GET /api/schools/` - List all schools (BEO/Headmaster)
 - `GET /api/schools/{id}/teachers/` - List teachers for a school
 
-### Attendance
+#### Attendance
 - `POST /api/attendance/sessions/` - Create attendance session (Headmaster)
 - `GET /api/attendance/sessions/today/?school_id=X` - Get today's session (Teacher)
 - `POST /api/attendance/sign-in/` - Sign in with selfie and location
 - `POST /api/attendance/sign-out/` - Sign out with selfie and location
 
-### Reporting
+#### Reporting
 - `POST /api/reporting/calculate-monthly/` - Trigger monthly calculation (BEO)
 - `GET /api/reporting/salary-alerts/` - Get teachers with salary block flags
 
-### Dashboard
+#### Dashboard
 - `GET /api/public/schools/` - List schools for dropdown
 - `GET /api/public/school/{id}/today/` - Today's attendance status
 
