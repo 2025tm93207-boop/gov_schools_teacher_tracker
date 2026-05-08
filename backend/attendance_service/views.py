@@ -5,6 +5,7 @@ from .models import AttendanceSession, AttendanceRecord, IssueReport
 from school_service.models import Teacher
 from .serializers import AttendanceSessionSerializer, AttendanceRecordSerializer, IssueReportSerializer
 from django.utils import timezone
+from django.utils.timezone import localtime
 from django.core.files.base import ContentFile
 import base64
 from math import radians, sin, cos, sqrt, atan2
@@ -74,7 +75,7 @@ class SignInView(APIView):
         lon = float(request.data.get('lon', 0))
         format, imgstr = selfie_data.split(';base64,')
         ext = format.split('/')[-1]
-        data = ContentFile(base64.b64decode(imgstr), name=f'signin_{teacher.user.username}_{timezone.now().strftime("%Y%m%d%H%M%S")}.{ext}')
+        data = ContentFile(base64.b64decode(imgstr), name=f'signin_{teacher.user.username}_{localtime(timezone.now()).strftime("%Y%m%d%H%M%S")}.{ext}')
         record, created = AttendanceRecord.objects.get_or_create(teacher=teacher, session=session)
         record.sign_in_time = timezone.now()
         record.sign_in_selfie = data
@@ -103,7 +104,7 @@ class SignOutView(APIView):
         lon = float(request.data.get('lon', 0))
         format, imgstr = selfie_data.split(';base64,')
         ext = format.split('/')[-1]
-        data = ContentFile(base64.b64decode(imgstr), name=f'signout_{teacher.user.username}_{timezone.now().strftime("%Y%m%d%H%M%S")}.{ext}')
+        data = ContentFile(base64.b64decode(imgstr), name=f'signout_{teacher.user.username}_{localtime(timezone.now()).strftime("%Y%m%d%H%M%S")}.{ext}')
         record = AttendanceRecord.objects.filter(teacher=teacher, session=session).first()
         if not record or not record.sign_in_time:
             return Response({'error': 'Must sign in first'}, status=400)
@@ -155,8 +156,8 @@ class SchoolTodayView(APIView):
                     'standard': teacher.standard,
                     'division': teacher.division,
                     'status': att_status,
-                    'sign_in_time': record.sign_in_time.strftime('%H:%M') if record and record.sign_in_time else None,
-                    'sign_out_time': record.sign_out_time.strftime('%H:%M') if record and record.sign_out_time else None,
+                    'sign_in_time': localtime(record.sign_in_time).strftime('%H:%M') if record and record.sign_in_time else None,
+                    'sign_out_time': localtime(record.sign_out_time).strftime('%H:%M') if record and record.sign_out_time else None,
                 })
         else:
             for teacher in teachers:
@@ -194,7 +195,7 @@ class TeacherMonthlyView(APIView):
             school=teacher.user.school,
             date__year=year,
             date__month=month
-        ).order_by('date')
+        ).order_by('-date')
 
         working_days = sessions.count()
         present_days = 0
@@ -217,8 +218,8 @@ class TeacherMonthlyView(APIView):
                 'date': session.date.strftime('%Y-%m-%d'),
                 'day': session.date.strftime('%A'),
                 'status': att_status,
-                'sign_in_time': record.sign_in_time.strftime('%H:%M') if record and record.sign_in_time else None,
-                'sign_out_time': record.sign_out_time.strftime('%H:%M') if record and record.sign_out_time else None,
+                'sign_in_time': localtime(record.sign_in_time).strftime('%H:%M') if record and record.sign_in_time else None,
+                'sign_out_time': localtime(record.sign_out_time).strftime('%H:%M') if record and record.sign_out_time else None,
             })
 
         attendance_pct = round((present_days + partial_days * 0.5) / working_days * 100, 1) if working_days > 0 else 0
@@ -335,7 +336,7 @@ class MyMonthlyView(APIView):
             school=teacher.user.school,
             date__year=year,
             date__month=month
-        ).order_by('date')
+        ).order_by('-date')
 
         working_days = sessions.count()
         present_days = 0
@@ -356,8 +357,8 @@ class MyMonthlyView(APIView):
                 'date': session.date.strftime('%Y-%m-%d'),
                 'day': session.date.strftime('%A'),
                 'status': att_status,
-                'sign_in_time': record.sign_in_time.strftime('%H:%M') if record and record.sign_in_time else None,
-                'sign_out_time': record.sign_out_time.strftime('%H:%M') if record and record.sign_out_time else None,
+                'sign_in_time': localtime(record.sign_in_time).strftime('%H:%M') if record and record.sign_in_time else None,
+                'sign_out_time': localtime(record.sign_out_time).strftime('%H:%M') if record and record.sign_out_time else None,
             })
 
         pct = round((present_days + partial_days * 0.5) / working_days * 100, 1) if working_days > 0 else 0

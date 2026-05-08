@@ -79,11 +79,14 @@ const HeadmasterDashboard = () => {
               <p className="text-xs text-slate-400">Students: <strong>{school?.student_count}</strong></p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <div className="text-xs text-slate-400">Today</div>
-              <div className="text-sm font-bold text-gov-navy">{new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</div>
-            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <div className="text-xs text-slate-400">Today</div>
+                <div className="text-sm font-bold text-gov-navy">{new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</div>
+              </div>
+              <button onClick={fetchToday} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-gov-navy transition-colors" title="Refresh data">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              </button>
             <button onClick={startSession} disabled={sessionActive} className={`btn-saffron ${sessionActive?'opacity-50 cursor-not-allowed':''}`}>
               {sessionActive?'✓ Session Active':'▶ Start Attendance'}
             </button>

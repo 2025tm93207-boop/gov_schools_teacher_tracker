@@ -135,7 +135,10 @@ class Command(BaseCommand):
             school_teachers = []
 
             for i in range(10):
-                username = f'teacher{i+1}_{school_suffix}'
+                if school_idx == 0 and i < 2:
+                    username = f'teacher{i+1}'
+                else:
+                    username = f'teacher{i+1}_{school_suffix}'
                 full_name = teacher_names[school_idx][i]
                 # First 8 teachers get assigned divisions, last 2 are substitutes
                 if i < 8:
@@ -181,9 +184,23 @@ class Command(BaseCommand):
         self.stdout.write('Generating April 2026 attendance data...')
         self._generate_monthly_attendance(schools, all_teachers, 2026, 4)
 
-        # ── Attendance Data for May 2026 (current month, up to today) ──
+        # ── Attendance Data for May 2026 (current month, up to yesterday) ──
         self.stdout.write('Generating May 2026 attendance data...')
         self._generate_monthly_attendance(schools, all_teachers, 2026, 5)
+
+        # ── Ensure Active Session for Today (no records) ──
+        self.stdout.write('Ensuring active sessions for today...')
+        today = date.today()
+        for school in schools:
+            AttendanceSession.objects.get_or_create(
+                school=school,
+                date=today,
+                defaults={
+                    'start_time': time(9, 0),
+                    'end_time': time(10, 0),
+                    'is_active': True
+                }
+            )
 
         self.stdout.write(self.style.SUCCESS('Data seeded successfully!'))
 
@@ -197,7 +214,7 @@ class Command(BaseCommand):
         working_dates = []
         for day in range(1, last_day + 1):
             d = date(year, month, day)
-            if d > today:
+            if d >= today:
                 break
             if d.weekday() != 6:  # Exclude Sunday
                 working_dates.append(d)

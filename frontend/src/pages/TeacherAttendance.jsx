@@ -37,11 +37,11 @@ const TeacherAttendance = () => {
 
   const handleSignIn = async () => {
     if (!selfie||!lat||!lon) { toast.error('Capture selfie and location'); return; }
-    try { await axios.post('/api/attendance/sign-in/',{selfie,lat,lon}); toast.success('Signed in!'); setSignedIn(true); } catch { toast.error('Error signing in'); }
+    try { await axios.post('/api/attendance/sign-in/',{selfie,lat,lon}); toast.success('Signed in!'); setSignedIn(true); fetchMonthly(); } catch { toast.error('Error signing in'); }
   };
   const handleSignOut = async () => {
     if (!selfie) { toast.error('Capture selfie'); return; }
-    try { await axios.post('/api/attendance/sign-out/',{selfie,lat,lon}); toast.success('Signed out!'); setSignedIn(false); } catch { toast.error('Error signing out'); }
+    try { await axios.post('/api/attendance/sign-out/',{selfie,lat,lon}); toast.success('Signed out!'); setSignedIn(false); fetchMonthly(); } catch { toast.error('Error signing out'); }
   };
   const submitIssue = async () => {
     if (!issueDesc.trim()) { toast.error('Please describe the issue'); return; }

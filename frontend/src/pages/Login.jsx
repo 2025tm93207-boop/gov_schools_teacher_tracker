@@ -29,7 +29,8 @@ const Login = () => {
 
   const quickLogins = [
     { label: 'Headmaster (Nandre)', username: 'hm_nandre' },
-    { label: 'Teacher (Nandre)', username: 'teacher1_nandre' },
+    { label: 'Teacher 1 (Nandre)', username: 'teacher1' },
+    { label: 'Teacher 2 (Nandre)', username: 'teacher2' },
     { label: 'BEO (Dhule)', username: 'beo_dhule' },
   ];
 
