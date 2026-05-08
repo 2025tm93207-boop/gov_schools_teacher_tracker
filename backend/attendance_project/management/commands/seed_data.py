@@ -106,7 +106,7 @@ class Command(BaseCommand):
             )
         self.stdout.write('Created 3 headmasters')
 
-        # ── Teacher Names (realistic Marathi names) ─────────
+        # ── Teacher Names (realistic regional names) ─────────
         teacher_names = [
             # School 0 (Nandre) - 8 assigned + 2 substitute
             ['Smt Kavita Jadhav', 'Shri Ramesh Wagh', 'Smt Priya Sonawane', 'Shri Manoj Pawar',

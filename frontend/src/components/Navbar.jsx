@@ -56,7 +56,7 @@ const Navbar = () => {
             {/* Left: Emblem + Title */}
             <Link to={user ? `/${user.role === 'beo' ? 'beo' : user.role}` : '/public'} className="flex items-center gap-3 hover:opacity-90 transition-opacity">
               <div className="logo-placeholder w-12 h-12 !bg-white/20 !border-white/30 !text-white text-lg shrink-0">
-                ॐ
+                🇮🇳
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm sm:text-base font-bold leading-tight truncate">

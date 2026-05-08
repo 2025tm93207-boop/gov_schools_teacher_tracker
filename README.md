@@ -13,7 +13,7 @@ Teacher absenteeism is a pervasive issue in rural government primary schools acr
 - **Automated Accountability Engine**: The system tracks monthly attendance percentages, automatically flags teachers dropping below 60%, and empowers the BEO to hold or release salaries directly from their dashboard.
 - **Public Transparency Dashboard**: Citizens can view real-time data for all schools in the district, including "Top Performing Schools" (awards for >85% attendance) and "Schools Needing Attention" (red flags for <70% attendance).
 - **Issue Reporting**: Teachers can report infrastructure, safety, or resource shortages directly from their portal.
-- **Formal Government Aesthetic**: Designed with an official Indian government color palette (Navy, Saffron, Green), standard UI cards, and bilingual navigation capabilities (English / Marathi toggle placeholder).
+- **Formal Government Aesthetic**: Designed with an official Indian government color palette (Navy, Saffron, Green), standard UI cards, and bilingual navigation capabilities (English / regional toggle placeholder).
 
 ## Tech Stack
 - **Backend**: Django (Microservice Architecture), Django REST Framework, SimpleJWT, SQLite
@@ -73,7 +73,7 @@ The backend follows a microservice architecture simulated within a single Django
 ## Seeded Data & Login Credentials
 The database is seeded with realistic historical data to demonstrate the system's tracking and penalty features:
 - **3 Real Schools**: ZPPS Nandre, ZPPS Kusumbe, ZPPS Fagne
-- **30 Teachers**: Mapped to 1st-4th standard (Divisions A/B) with realistic Marathi names.
+- **30 Teachers**: Mapped to 1st-4th standard (Divisions A/B) with realistic regional names.
 - **Attendance History**: Over 30 days of pre-populated sign-ins/outs with variable performance profiles (High, Medium, Low attendance) to trigger the salary hold logic.
 
 Use the "Quick Demo Login" buttons on the frontend to automatically log in as:
@@ -103,7 +103,38 @@ Use the "Quick Demo Login" buttons on the frontend to automatically log in as:
 
 *(All endpoints except `/api/dashboard/*` require JWT authentication)*
 
-## Future Enhancements
+## AI Usage Log & Reflection
+
+**Tools used**  
+- GitHub Copilot – boilerplate generation (Django models, React components)  
+- Claude Sonnet 4.6 – bug fixing (JWT, salary logic, geolocation fallback)  
+- Gemini 3.1 – placeholder images for headmaster/BEO/teacher  
+- DeepSeek – prompt engineering & requirements structuring  
+
+**AI vs manual split** – ~65% AI‑generated, 35% manual. AI handled CRUD, auth boilerplate, Swagger docs. Manually fixed: business rules (sign‑in + sign‑out = full day), geolocation error handling, React cleanup, Haversine distance, realistic regional names seed.
+
+**Reflection: help vs hinder**  
+- **Help** – rapid prototyping, learning microservice simulation, auto‑documentation (ER, architecture).  
+- **Hinder** – false confidence (AI code looked correct but had logical errors), over‑abstraction (duplicated models), silent geo‑API failures.  
+
+**Integration issues**  
+- JWT inconsistent across services → added `SIMPLE_JWT` to each `settings.py`.  
+- Nested serializer recursion → switched to `PrimaryKeyRelatedField`.  
+- Camera not releasing → manual cleanup of media stream.  
+- Geo‑validation used degrees as metres → implemented Haversine.  
+- Frontend only checked localStorage → added token expiry & 401 interceptor.  
+- Seeded fake names → replaced with 30 real regional names.  
+
+**Debugging lessons**  
+- **Stateful logic** – attendance timer needed `useRef` + cleanup; multiple `setInterval` ran concurrently.  
+- **Defensive coding** – missing sign‑out → half day, not absent. AI assumed perfect user behaviour.  
+- **SQLite concurrency** – separate DB files caused foreign key mismatches; switched to single DB with app labeling.  
+- **Geolocation limits** – works only on HTTPS/localhost; added manual fallback with clear warning.  
+- **Documentation depth** – AI generated Swagger but forgot endpoint grouping; manually tagging `@extend_schema` taught me OpenAPI thoroughly.  
+
+**Final verdict** – AI is a powerful junior developer: fast but naive. Boilerplate time saved (~70%) was reinvested into debugging, leaving me with deeper understanding of Django REST, React hooks, and real‑world edge cases than writing from scratch.
+
+## Future Enhancements for this Project
 - AI-based face detection to automatically verify the number of students in the background of teacher selfies.
 - Progressive Web App (PWA) offline mode for remote villages with intermittent connectivity.
 - Direct API integration with the Maharashtra State Treasury for automated salary deduction.

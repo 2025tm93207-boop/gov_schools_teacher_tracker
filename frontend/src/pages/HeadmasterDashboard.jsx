@@ -65,7 +65,12 @@ const HeadmasterDashboard = () => {
       <div className="gov-card p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="logo-placeholder w-14 h-14 text-2xl shrink-0">🏫</div>
+          <div className="w-14 h-14 shrink-0">
+            {school?.logo ? (
+              <img src={school.logo} alt="School Logo" className="w-full h-full object-contain" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+            ) : null}
+            <div className="logo-placeholder w-14 h-14 text-2xl items-center justify-center" style={{display: school?.logo ? 'none' : 'flex'}}>🏫</div>
+          </div>
             <div>
               <h1 className="text-xl font-bold text-gov-navy">{school?.name||'Dashboard'}</h1>
               <p className="text-sm text-slate-500">{school?.address}, {school?.village}, {school?.district}

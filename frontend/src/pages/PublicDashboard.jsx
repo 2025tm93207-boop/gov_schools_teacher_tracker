@@ -45,7 +45,7 @@ const PublicDashboard = () => {
       {/* District Header */}
       <div className="gov-card p-6 bg-gradient-to-r from-gov-navy to-gov-navy-light text-white">
         <div className="flex items-center gap-4">
-          <div className="logo-placeholder w-16 h-16 !bg-white/20 !border-white/30 !text-white text-2xl">🏛️</div>
+          <div className="w-16 h-16 shrink-0 bg-white/20 rounded-xl flex items-center justify-center border border-white/30 text-3xl">🏛️</div>
           <div>
             <h1 className="text-xl font-bold">Dhule District — Government Primary Schools</h1>
             <p className="text-sm text-white/70">Transparency Dashboard • Zilla Parishad Education Department • {MONTHS[useMonth]} {useYear}</p>
@@ -118,7 +118,12 @@ const PublicDashboard = () => {
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 {/* School Info */}
                 <div className="flex items-start gap-3 lg:w-1/3">
-                  <div className="logo-placeholder w-12 h-12 text-xl shrink-0">🏫</div>
+                  <div className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-slate-100">
+                    {s.logo ? (
+                      <img src={s.logo} alt="School" className="w-full h-full object-contain" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+                    ) : null}
+                    <div className="logo-placeholder w-full h-full text-xl items-center justify-center bg-slate-50" style={{display: s.logo ? 'none' : 'flex'}}>🏫</div>
+                  </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-gov-navy group-hover:text-gov-saffron transition-colors">{s.name}</h3>
                     <p className="text-xs text-slate-500 truncate">{s.address}</p>

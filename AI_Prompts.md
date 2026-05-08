@@ -63,7 +63,7 @@ Seed the database with realistic data:
   1. ZPPS Nandre (lat: 20.9050, lon: 74.7730)
   2. ZPPS Kusumbe (lat: 20.9110, lon: 74.7790)
   3. ZPPS Fagne (lat: 20.8850, lon: 74.7670)
-- Each school has 10 teachers, each assigned as class teacher for one standard (1 to 5, so 2 teachers per standard maybe, or just 2 teachers per class – you can distribute 10 teachers: 2 each for 1-5). Teachers have real‑sounding Marathi names.
+- Each school has 10 teachers, each assigned as class teacher for one standard (1 to 5, so 2 teachers per standard maybe, or just 2 teachers per class – you can distribute 10 teachers: 2 each for 1-5). Teachers have real‑sounding regional names.
 - No subject‑wise split; class teacher handles all subjects.
 - Seeded users:
   - Headmaster for each school (e.g., hm_nandre, password: Test@123)
@@ -196,8 +196,6 @@ SALARY BLOCK LOGIC
 - The BEO alert view shows teachers where this is True.
 - There is NO automated financial action; it's just a recommendation visible to the officer. This matches the transparency goal.
 
-
-
 README.MD MUST INCLUDE:
 
 - Project Title & Tagline
@@ -232,113 +230,26 @@ Deliver a single monorepo with:
    tailwind.config.js
 README.md
 
-COMMANDS TO RUN:
-Backend:
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_data  # custom management command to populate
-python manage.py runserver
-
-Frontend:
-cd frontend
-npm install
-npm run dev
-
-Ensure all instructions are clear and production‑ready for a college submission.
-
-Now, generate the complete code for this project.
 ------------------------------
 
-PROMPT-2:
+Manual Fixes Applied:
 
-Do not change any business logic or existing endpoints; only add documentation, configuration, and diagram files.
-
-1. AUTO-GENERATED SWAGGER API DOCUMENTATION
-   - Integrate drf-spectacular into the Django project to automatically generate OpenAPI 3.0 schemas for all microservice endpoints.
-   - Add a single Swagger UI page (e.g., /api/docs/) that groups endpoints by service (auth, school, attendance, reporting, dashboard).
-   - Ensure all endpoints are decorated with appropriate tags, summaries, and descriptions using @extend_schema or DRF viewset docstrings.
-   - The Swagger page must support JWT authentication (Authorize button) so evaluators can test protected endpoints directly from the browser.
-   - Update requirements.txt to include drf-spectacular.
-   - Add clear instructions in README.md on how to access the Swagger UI.
-
-2. DATABASE SCHEMA / ER DIAGRAM
-   - Analyse the final models across all services (User, School, Teacher, AttendanceSession, AttendanceRecord, MonthlyReport, etc.).
-   - Generate a Mermaid ER diagram (mermaid erDiagram syntax) that shows all tables, their columns (key ones), primary keys, foreign keys, and relationships (one-to-many, many-to-many if any).
-   - Place this diagram inside a new file /docs/database_er_diagram.md.
-   - The diagram must be accurate according to the actual models.py files in the project.
-   - Add a brief explanation of how the microservice split is reflected (e.g., separate schemas or logical separation).
-
-3. ARCHITECTURE DIAGRAM AND COMPONENT HIERARCHY
-   a) System Architecture Diagram:
-      - Create a high-level architecture diagram using Mermaid (flowchart or graph) showing:
-         * React frontend (with different pages for each role)
-         * The five Django microservices (auth, school, attendance, reporting, dashboard)
-         * The API Gateway (explain that internal calls are made directly for simplicity, but a gateway can be added; for now show a simple NGINX or direct HTTP arrows)
-         * Database (SQLite files)
-         * External browser geolocation and webcam
-      - Place the diagram in /docs/architecture_diagram.md with a descriptive caption.
-   b) React Component Hierarchy:
-      - Create a Mermaid graph (flowchart TD) showing the full component tree:
-         App -> RoleBasedRouter -> Login, HeadmasterDashboard, TeacherAttendance, BEODashboard, PublicDashboard.
-         Expand each dashboard into its sub-components (e.g., HeadmasterDashboard -> StartSessionButton, TeacherStatusList, TeacherStatusCard).
-         Ensure the diagram matches the actual frontend file structure.
-      - Place this in /docs/component_hierarchy.md.
-
-4. UI/UX WIREFRAMES (rough sketches)
-   - Since we cannot generate actual images, provide clear, detailed textual wireframes using ASCII art or a Mermaid flowchart that outlines each screen layout with major UI elements.
-   - For each of the 5 key screens (Login, Headmaster Dashboard, Teacher Attendance, BEO Dashboard, Public Dashboard), create a markdown section describing:
-        * Screen title
-        * Purpose
-        * Key components (e.g., buttons, cards, camera preview, status lists)
-        * Navigation links
-   - You can optionally include simple box-and-line ASCII sketches for the mobile viewports (375×667) to show how elements stack.
-   - Store these wireframes in /docs/ui_wireframes.md.
-
-All generated documentation must be clean, well-formatted, and placed inside a /docs folder at the root of the repository. Ensure the README.md is updated with links to each of these new documents and to the Swagger UI endpoint.
-
-------------------------------
-
-Python version fix
-Pillow version correction to >=10.4
-Added gitignore
+- Python version fix (3.11)
+- Pillow version correction to >=10.4
+- Added gitignore
 
 ___
 
-Models used -
+PROMPT - 2
 
-DeepSeek - Prompt generation, Idea brainstorming
-GitHub CoPilot - Initial Code Generation
-Gemini 3.1 - Image Generation
-Claude Sonnet 4.6 - Bug fixing
+Transform the current basic interface into a formal government‑style web application using Tailwind CSS (navy headers, saffron accents, responsive). Add placeholder images (Gemini) for Headmaster, BEO, Teacher.
 
----------------------------
+**Headmaster Dashboard:** Header with school name, logo, address. Show classes 1–4; clicking a class reveals division‑vs‑teacher mapping. Provide “Start Attendance for Today” per teacher and a link to view any teacher’s attendance metrics for the current academic year.
 
-PROMPT-3:
+**Teacher Dashboard:** Header with school logo, address, teacher name. Display assigned class, current month’s attendance record (dates, status). Buttons: “Mark Today’s Attendance” (existing camera/geo flow) and “Report an Issue” (new modal + backend endpoint POST `/api/reporting/teacher-issue/`).
 
-study the current code, its very plain
-the UI looks very basic
-I want things to be mapped
-when I login as a headmaster the header should show  my school name and logo, classes in my school (1st t0 4th standard) when I click on a class I see the divisions vs teacher mapping and option to start attendance for today
-and option to view attendance records by teacher (metrics for any teacher for their class for current academic year)
+**BEO Dashboard:** Overview lists all schools with logo, address, headmaster name/contact, monthly stats summary. Drill‑down to school detail shows teacher‑wise attendance % for current and previous month, plus “Hold Salary” / “Release Salary” actions (new `salary_on_hold` boolean field). No actual payment integration.
 
-when I login as a teacher, again I see the header for my school with logo and address of the school
-I see my class, my own attendance records for current month, option to mark today's attendance and ability to report any issue
+**Public Dashboard (no login):** District‑level view of all schools: name, address, BEO/headmaster names, student count, teacher‑wise monthly attendance %. Award dashboard (green badge for >90% attendance two consecutive months). Red‑flagged schools (any teacher <60% or salary hold active).
 
-when  I login as BEO I see all schools under me -> logo, address, headmaster name, contact details
-monthly stats summary for each school
-
-clicking on the school leads to detailed teacher wise stats for current and previous month and ability to hold/release salary for a teacher/headmaster
-
-when I login as public I see high level stats for all schools in my district
-school name, address, beo name,  headmaster, teacherwise % attendance per month, student count, etc.
-award dashbaord for schools doing well
-red flagged schools doing poorly
-
-update data for current month and previous month, backend APIs and frontend accordingly
-
-add placeholder images for headmaster, beo, teacher
-
-make it formal like a government website
-
-
- 
+**Backend Updates:** Add `salary_on_hold` (Teacher), `student_count` (School), `headmaster_contact` (School). New reporting endpoints; seed realistic data (student counts 120‑250, contact numbers). Preserve all existing business logic (attendance window, geo‑validation, salary block flag). Deliver updated frontend components, migrations, seed command, and Swagger documentation.
