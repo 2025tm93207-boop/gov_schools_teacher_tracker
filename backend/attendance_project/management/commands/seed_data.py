@@ -192,7 +192,7 @@ class Command(BaseCommand):
         self.stdout.write('Ensuring active sessions for today...')
         today = date.today()
         for school in schools:
-            AttendanceSession.objects.get_or_create(
+            session, _ = AttendanceSession.objects.get_or_create(
                 school=school,
                 date=today,
                 defaults={
@@ -201,6 +201,19 @@ class Command(BaseCommand):
                     'is_active': True
                 }
             )
+            # ── Mark all teachers signed-in for today except teacher2 ──
+            school_teachers = Teacher.objects.filter(user__school=school)
+            for t in school_teachers:
+                if t.user.username == 'teacher2':
+                    continue
+                AttendanceRecord.objects.create(
+                    teacher=t,
+                    session=session,
+                    sign_in_time=timezone.make_aware(datetime.combine(today, time(9, random.randint(0, 15)))),
+                    sign_in_lat=school.latitude,
+                    sign_in_lon=school.longitude,
+                    sign_in_verified=True
+                )
 
         self.stdout.write(self.style.SUCCESS('Data seeded successfully!'))
 
@@ -226,7 +239,7 @@ class Command(BaseCommand):
         # Index: teacher index within school
         # High performers: ~90-100%, Medium: ~70-85%, Low: ~40-55%
         profiles = [
-            'high', 'high', 'high', 'medium', 'medium',
+            'low', 'high', 'high', 'medium', 'medium',
             'high', 'medium', 'high', 'low', 'medium'
         ]
 
