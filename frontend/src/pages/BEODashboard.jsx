@@ -40,6 +40,22 @@ const BEODashboard = () => {
     } catch { toast.error('Error calculating'); }
   };
 
+  const handleHoldSalary = async (tId) => {
+    try {
+      await axios.post('/api/reporting/hold-salary/', { teacher_id: tId });
+      toast.success('Salary held successfully');
+      fetchAlerts();
+    } catch { toast.error('Error holding salary'); }
+  };
+
+  const handleReleaseSalary = async (tId) => {
+    try {
+      await axios.post('/api/reporting/release-salary/', { teacher_id: tId });
+      toast.success('Salary released successfully');
+      fetchAlerts();
+    } catch { toast.error('Error releasing salary'); }
+  };
+
   const pctClr = (p) => p>=80?'text-gov-green':p>=60?'text-amber-600':'text-gov-red';
   const barClr = (p) => p>=80?'progress-good':p>=60?'progress-medium':'progress-poor';
 
@@ -121,12 +137,19 @@ const BEODashboard = () => {
       {alerts.length > 0 && <div>
         <h2 className="section-title">⚠️ Salary Block Alerts</h2>
         <div className="gov-card overflow-hidden">
-          <table className="gov-table"><thead><tr><th>Teacher</th><th>School</th><th>Class</th><th>Status</th></tr></thead>
+          <table className="gov-table"><thead><tr><th>Teacher</th><th>School</th><th>Class</th><th>Status</th><th className="text-right">Action</th></tr></thead>
             <tbody>{alerts.map(a=><tr key={a.teacher_id}>
               <td><div className="flex items-center gap-2"><div className="avatar-placeholder avatar-sm">{a.teacher?.[0]}</div><span className="font-medium text-sm">{a.teacher}</span></div></td>
               <td className="text-sm">{a.school}</td>
               <td className="text-sm">Std {a.standard}{a.division}</td>
               <td>{a.salary_held?<span className="badge badge-held">🔒 Held</span>:<span className="badge badge-absent">⚠ Recommended</span>}</td>
+              <td className="text-right">
+                {a.salary_held ? (
+                  <button onClick={() => handleReleaseSalary(a.teacher_id)} className="text-xs font-bold text-gov-green hover:underline">Release Salary</button>
+                ) : (
+                  <button onClick={() => handleHoldSalary(a.teacher_id)} className="text-xs font-bold text-gov-red hover:underline">Hold Salary</button>
+                )}
+              </td>
             </tr>)}</tbody>
           </table>
         </div>

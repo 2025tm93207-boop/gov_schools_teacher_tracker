@@ -71,6 +71,17 @@ const TeacherAttendance = () => {
         </div>
       </div>
 
+      {/* Salary Held Alert */}
+      {teacher?.salary_held && (
+        <div className="bg-red-50 border-2 border-gov-red rounded-xl p-4 animate-pulse flex items-center gap-4">
+          <div className="text-3xl">⚠️</div>
+          <div>
+            <h3 className="text-gov-red font-bold">Salary Blocked</h3>
+            <p className="text-sm text-red-700">Your salary has been blocked by the Block Education Office (BEO) due to low attendance. Please contact your BEO for clarification.</p>
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="flex gap-1 bg-white rounded-lg p-1 border border-slate-200">
         {[{k:'attendance',l:'📋 Mark Attendance'},{k:'records',l:'📊 My Records'},{k:'issues',l:'⚠️ Report Issue'}].map(t=>(

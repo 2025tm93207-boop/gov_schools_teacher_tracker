@@ -1,60 +1,59 @@
 import { useState, useEffect } from 'react';
 
 const GeoLocationPrompt = ({ onLocation }) => {
-  const [location, setLocation] = useState({ lat: '', lon: '' });
-  const [manual, setManual] = useState(false);
+  const [status, setStatus] = useState('requesting'); // 'requesting', 'success', 'denied', 'error'
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+          setStatus('success');
           onLocation(pos.coords.latitude, pos.coords.longitude);
         },
-        () => setManual(true)
+        (err) => {
+          if (err.code === 1) setStatus('denied');
+          else setStatus('error');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
-      setManual(true);
+      setStatus('error');
     }
   }, [onLocation]);
 
-  const handleManual = () => {
-    onLocation(parseFloat(location.lat), parseFloat(location.lon));
-  };
-
-  if (manual) {
+  if (status === 'denied') {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-slate-800 font-medium">GPS not available. Enter location manually:</p>
-        <div className="mt-4 space-y-3">
-          <div>
-            <label className="block text-sm text-slate-700 mb-1">Latitude</label>
-            <input
-              type="number"
-              placeholder="Latitude"
-              value={location.lat}
-              onChange={(e) => setLocation({ ...location, lat: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-slate-700 mb-1">Longitude</label>
-            <input
-              type="number"
-              placeholder="Longitude"
-              value={location.lon}
-              onChange={(e) => setLocation({ ...location, lon: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900"
-            />
-          </div>
-          <button onClick={handleManual} className="w-full rounded-lg bg-saffron-600 px-4 py-3 text-slate-900 font-semibold transition hover:bg-saffron-700">Submit Location</button>
-          <p className="text-sm text-slate-600">For laptop demo, you may use school coordinates in the input fields.</p>
-        </div>
+      <div className="rounded-xl border border-gov-red bg-red-50 p-4 text-gov-red">
+        <p className="font-bold">📍 Location Access Denied</p>
+        <p className="text-sm mt-1">Manual entry is not allowed. Please enable location permissions in your browser settings to mark attendance.</p>
       </div>
     );
   }
 
-  return <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-700">Getting location from the browser...</p>;
+  if (status === 'error') {
+    return (
+      <div className="rounded-xl border border-gov-red bg-red-50 p-4 text-gov-red">
+        <p className="font-bold">❌ GPS Error</p>
+        <p className="text-sm mt-1">Could not retrieve your location. Please ensure your device's GPS is turned on and try again.</p>
+      </div>
+    );
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="rounded-xl border border-gov-green bg-green-50 p-4 text-gov-green">
+        <p className="font-bold">✅ Location Verified</p>
+        <p className="text-sm mt-1">Your coordinates have been captured automatically.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 flex items-center gap-3">
+      <div className="w-5 h-5 border-2 border-gov-navy border-t-transparent rounded-full animate-spin" />
+      <p className="text-slate-700 font-medium">Getting location from the browser...</p>
+    </div>
+  );
 };
 
-export default GeoLocationPrompt;
+export default GeoLocationPrompt;

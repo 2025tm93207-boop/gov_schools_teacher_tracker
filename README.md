@@ -28,6 +28,17 @@ The backend follows a microservice architecture simulated within a single Django
 - **reporting_service**: Calculates monthly attendance percentages and manages salary block recommendations.
 - **dashboard_service**: Provides read-only aggregated APIs for the public dashboard (awards, red flags, high-level stats).
 
+![alt text](diagrams/architecture_diagram.png)
+
+## Database ER Diagram
+![alt text](diagrams/database_er_diagram.png)
+
+## React Component Hierarchy
+![alt text](diagrams/react_component_hierarchy.png)
+
+## UI Wireframes
+![alt text](diagrams/ui_wireframes.png)
+
 ## Setup Instructions
 1. **Clone the Repository**:
    ```bash
@@ -41,7 +52,7 @@ The backend follows a microservice architecture simulated within a single Django
    python -m venv venv
    venv\Scripts\activate  # On Windows
    pip install -r requirements.txt
-   python manage.py makemigrations auth_service school_service attendance_service
+   python manage.py makemigrations auth_service school_service attendance_service reporting_service dashboard_service
    python manage.py migrate
    python manage.py seed_data
    python manage.py runserver 8000

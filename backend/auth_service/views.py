@@ -45,6 +45,8 @@ class LoginView(APIView):
                         'division': teacher.division,
                         'photo': teacher.photo,
                         'phone': teacher.phone,
+                        'salary_held': teacher.salary_held,
+                        'salary_block_recommended': teacher.salary_block_recommended,
                     }
                 except Exception:
                     pass
@@ -97,6 +99,8 @@ class MeView(APIView):
                     'division': teacher.division,
                     'photo': teacher.photo,
                     'phone': teacher.phone,
+                    'salary_held': teacher.salary_held,
+                    'salary_block_recommended': teacher.salary_block_recommended,
                 }
             except Exception:
                 pass
